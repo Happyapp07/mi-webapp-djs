@@ -129,14 +129,18 @@ export const useSubscriptionStore = create<SubscriptionState>((set, get) => ({
         throw new Error('Plan not found');
       }
 
+      // Determine trial eligibility before processing payment
+      const isEligibleForTrial = !localStorage.getItem('has_used_trial');
+      const shouldStartTrial = isEligibleForTrial && plan.price > 0;
+
       const stripe = await stripePromise;
-      
+
       // Check if Stripe is properly configured
       if (!stripe || !import.meta.env.VITE_STRIPE_PUBLIC_KEY) {
         console.warn('Stripe not configured. Using mock implementation.');
-        
+
         // For demo, simulate successful subscription
-        set({ 
+        set({
           currentSubscription: {
             planId: plan.id,
             status: 'active',
@@ -145,26 +149,22 @@ export const useSubscriptionStore = create<SubscriptionState>((set, get) => ({
             isTrialPeriod: shouldStartTrial,
             trialEndsAt: shouldStartTrial ? new Date(Date.now() + 90 * 24 * 60 * 60 * 1000) : undefined
           },
-          isLoading: false 
+          isLoading: false
         });
-        
+
         // Mark trial as used
         if (shouldStartTrial) {
           localStorage.setItem('has_used_trial', 'true');
         }
-        
+
         return;
       }
-      
+
       // In a real implementation, this would redirect to Stripe Checkout
       // or use Stripe Elements to collect payment information
 
-      // Check if user is eligible for trial
-      const isEligibleForTrial = !localStorage.getItem('has_used_trial');
-      const shouldStartTrial = isEligibleForTrial && plan.price > 0;
-
       // For now, we'll use the same mock implementation
-      set({ 
+      set({
         currentSubscription: {
           planId: plan.id,
           status: 'active',
@@ -173,9 +173,9 @@ export const useSubscriptionStore = create<SubscriptionState>((set, get) => ({
           isTrialPeriod: shouldStartTrial,
           trialEndsAt: shouldStartTrial ? new Date(Date.now() + 90 * 24 * 60 * 60 * 1000) : undefined
         },
-        isLoading: false 
+        isLoading: false
       });
-      
+
       // Mark trial as used
       if (shouldStartTrial) {
         localStorage.setItem('has_used_trial', 'true');
