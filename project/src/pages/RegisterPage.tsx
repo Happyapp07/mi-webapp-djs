@@ -26,6 +26,7 @@ const RegisterPage: React.FC<RegisterPageProps> = () => {
   const [referralCode, setReferralCode] = useState<string | null>(null);
   const [showReferralInput, setShowReferralInput] = useState(false);
   const [redirectToProfile, setRedirectToProfile] = useState(false);
+  const [selectedPlanId, setSelectedPlanId] = useState<string | null>(null);
 
   // Check for referral code in URL
   useEffect(() => {
@@ -35,10 +36,19 @@ const RegisterPage: React.FC<RegisterPageProps> = () => {
       setReferralCode(ref);
       setShowReferralInput(true);
     }
-    
-    // Check if we should redirect to profile after registration
-    if (location.state?.redirectToProfile) {
+
+    const state = location.state as {
+      redirectToProfile?: boolean;
+      planId?: string;
+      userType?: UserType;
+    };
+    if (state?.redirectToProfile) {
       setRedirectToProfile(true);
+    }
+    if (state?.planId) {
+      setUserType(state.userType || null);
+      setSelectedPlanId(state.planId);
+      setShowAuthModal(true);
     }
   }, [location]);
 
@@ -258,12 +268,13 @@ const RegisterPage: React.FC<RegisterPageProps> = () => {
       </motion.div>
 
       {/* Auth Modal */}
-      <AuthModal 
-        isOpen={showAuthModal} 
-        onClose={() => setShowAuthModal(false)} 
+      <AuthModal
+        isOpen={showAuthModal}
+        onClose={() => setShowAuthModal(false)}
         initialMode={authMode}
         userType={userType}
         redirectToProfile={redirectToProfile}
+        planId={selectedPlanId || undefined}
       />
       
       {/* Entity Application Form */}
