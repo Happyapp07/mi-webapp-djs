@@ -5,7 +5,7 @@ import { User, Headphones, Building2, ChevronRight, Star, Zap, Crown, Clock, Cal
 import { UserType } from '../types';
 import AuthModal from '../components/auth/AuthModal';
 import EntityApplicationForm from '../components/entity/EntityApplicationForm';
-import { buildRedirectionState } from '../utils/redirectionUtils';
+import { buildRedirectionState, RedirectionState } from '../utils/redirectionUtils';
 import { useEntityStore } from '../stores/entityStore';
 import ReferralCodeInput from '../components/referral/ReferralCodeInput';
 import { useReferralStore } from '../stores/referralStore';
@@ -41,6 +41,18 @@ const RegisterPage: React.FC<RegisterPageProps> = () => {
       setRedirectToProfile(true);
     }
   }, [location]);
+
+  // Automatically open registration modal based on redirection state
+  useEffect(() => {
+    const state = location.state as RedirectionState | undefined;
+    if (state?.userType && state?.planId) {
+      setUserType(state.userType);
+      setAuthMode('register');
+      setShowAuthModal(true);
+      setIsRegistering(true);
+      setStep(2); // Skip role selection
+    }
+  }, [location.state]);
 
   const handleToggleForm = () => {
     setIsRegistering(!isRegistering);
