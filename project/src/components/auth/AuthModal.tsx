@@ -12,14 +12,16 @@ interface AuthModalProps {
   initialMode?: 'login' | 'register';
   userType?: UserType;
   redirectToProfile?: boolean;
+  planId?: string;
 }
 
 const AuthModal: React.FC<AuthModalProps> = ({
-  isOpen, 
-  onClose, 
+  isOpen,
+  onClose,
   initialMode = 'login',
   userType,
-  redirectToProfile
+  redirectToProfile,
+  planId
 }) => {
   const [mode, setMode] = useState<'login' | 'register'>(initialMode);
   const [isLoading, setIsLoading] = useState(false);
@@ -66,7 +68,7 @@ const AuthModal: React.FC<AuthModalProps> = ({
         // Build redirection state
         const redirectState = buildRedirectionState(
           mockUser.userType as UserType,
-          undefined, // No plan ID for mock login
+          planId,
           {
             userId: mockUser.id,
             redirectToProfile: true // Always redirect to profile after login
